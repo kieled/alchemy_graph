@@ -1,0 +1,2 @@
+[run]
+omit = alchemy_graph/__version__.py

@@ -1,0 +1,44 @@
+[tool.poetry]
+name = "alchemy_graph"
+version = "0.1.0"
+description = ""
+authors = ["Kiel Ed <kieledssh@gmail.com>"]
+readme = "README.md"
+keywords = ["strawberry-graphql", "sqlalchemy-mapper", "sqlalchemy", "strawberry", "mapper", "dict"]
+homepage = "https://github.com/kieled/alchemy_graph"
+repository = "https://github.com/kieled/alchemy_graph"
+packages = [
+    { include = "alchemy_graph" },
+    { include = "tests", format = "sdist" },
+]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Intended Audience :: Developers",
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+sqlalchemy = "^2.0.12"
+fastapi = "^0.95.1"
+strawberry-graphql = {extras = ["fastapi"], version = "^0.176.3"}
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.0.264"
+pytest = "^7.3.1"
+pytest-cov = "^4.0.0"
+pytest-asyncio = "^0.21.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
