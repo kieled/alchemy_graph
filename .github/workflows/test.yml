@@ -34,12 +34,6 @@ jobs:
       - name: Test with pytest
         run: |
           poetry run pytest
-      - name: Upload coverage to Codecov
-        if: ${{ matrix.update-coverage }}
-        uses: codecov/codecov-action@v1
-        with:
-          file: ./coverage.xml
-          fail_ci_if_error: true
 
   lint:
     name: ruff
