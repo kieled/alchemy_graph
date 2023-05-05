@@ -1,6 +1,11 @@
-# alchemy_graph
+<h2 align="center">:small_red_triangle: alchemy_graph :small_red_triangle:</h2>
 
 ![New Project](https://user-images.githubusercontent.com/68655454/236483334-a3c86f5c-f732-4465-bf78-692ddd4609b2.png)
+
+<p align="center">
+ <a href="https://github.com/kieled/alchemy_graph/actions/workflows/test.yml" alt="GitFlow">
+        <img src="https://github.com/kieled/alchemy_graph/actions/workflows/test.yml/badge.svg" /></a>
+</p>
 
 SQLAlchemy mapper to Strawberry types
 
