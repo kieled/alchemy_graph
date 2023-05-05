@@ -34,7 +34,7 @@ clean-test:
 	rm -f .coverage
 
 lint:
-	ruff check .
+	ruff check . --fix
 
 test:
 	pytest -s

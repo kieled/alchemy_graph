@@ -45,3 +45,7 @@ Given an SQLAlchemy object, returns a dictionary representation of the object.
 - `obj`: An SQLAlchemy object to convert to a dictionary.
 #### Returns:
 A dictionary representation of the input object.
+
+## LICENSE
+
+This project is licensed under the terms of the MIT license.

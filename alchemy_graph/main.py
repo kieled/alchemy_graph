@@ -1,24 +1,28 @@
 import enum
 from datetime import datetime
 from functools import wraps
-from types import UnionType, GenericAlias
+from types import GenericAlias, UnionType
+
 import strawberry
-from sqlalchemy import select, Select
-from sqlalchemy.orm import load_only, joinedload
-from strawberry.type import StrawberryOptional, StrawberryList
-from strawberry.types.nodes import SelectedField
+from sqlalchemy import Select, select
+from sqlalchemy.orm import joinedload, load_only
+from strawberry.type import StrawberryList, StrawberryOptional
 from strawberry.types import Info
+from strawberry.types.nodes import SelectedField
 
-from .utils import convert_camel_case, flatten, get_dict_object, strawberry_to_dict, find_info_in_args
+from .utils import (
+    convert_camel_case,
+    find_info_in_args,
+    flatten,
+    get_dict_object,
+    strawberry_to_dict,
+)
 
 
-def get_relation_options(
-        relation: dict,
-        prev_sql: Select | None = None
-):
+def get_relation_options(relation: dict, prev_sql: Select | None = None):
     key, val = next(iter(relation.items()))
-    fields = val['fields']
-    relations = val['relations']
+    fields = val["fields"]
+    relations = val["relations"]
     if prev_sql:
         sql = prev_sql.joinedload(key).load_only(*fields)
     else:
@@ -29,17 +33,14 @@ def get_relation_options(
         yield from get_relation_options(relations[0], sql)
     for i in relations:
         rels = get_relation_options(i, sql)
-        if hasattr(rels, '__iter__'):
-            for r in rels:
-                yield r
+        if hasattr(rels, "__iter__"):
+            yield from rels
         else:
             yield rels
 
 
 def get_only_selected_fields(
-        sqlalchemy_class,
-        info: Info,
-        inner_selection_name: str | None = None
+    sqlalchemy_class, info: Info, inner_selection_name: str | None = None
 ) -> Select:
     """Given a SQLAlchemy model class and a Strawberry `Info` object representing a selection set,
     returns a SQLAlchemy `Select` object that loads only the fields and relations specified in the selection set.
@@ -54,7 +55,7 @@ def get_only_selected_fields(
     def process_items(items: list[SelectedField], db_class):
         current_fields, relations = [], []
         for item in items:
-            if item.name == '__typename':
+            if item.name == "__typename":
                 continue
             try:
                 relation_name = getattr(db_class, convert_camel_case(item.name))
@@ -64,31 +65,32 @@ def get_only_selected_fields(
                 current_fields.append(relation_name)
                 continue
             related_class = relation_name.property.mapper.class_
-            relations.append({relation_name: process_items(item.selections, related_class)})
-        return dict(fields=current_fields, relations=relations)
+            relations.append(
+                {relation_name: process_items(item.selections, related_class)}
+            )
+        return {"fields": current_fields, "relations": relations}
 
     selections = info.selected_fields[0].selections
     if inner_selection_name:
         try:
-            selections = next(sel for sel in selections if sel.name == inner_selection_name).selections
+            selections = next(
+                sel for sel in selections if sel.name == inner_selection_name
+            ).selections
         except ValueError:
             pass
     options = process_items(selections, sqlalchemy_class)
 
-    fields = [load_only(*options['fields'])] if len(options['fields']) else []
+    fields = [load_only(*options["fields"])] if len(options["fields"]) else []
 
     query_options = [
         *fields,
-        *flatten([list(get_relation_options(i)) for i in options['relations']])
+        *flatten([list(get_relation_options(i)) for i in options["relations"]]),
     ]
 
     return select(sqlalchemy_class).options(*query_options)
 
 
-def _orm_to_strawberry_step(
-        item: dict,
-        current_strawberry_type
-):
+def _orm_to_strawberry_step(item: dict, current_strawberry_type):
     annots = current_strawberry_type.__annotations__
     temp = {}
     for k, v in item.items():
@@ -116,10 +118,7 @@ def _orm_to_strawberry_step(
     return current_strawberry_type(**temp)
 
 
-def orm_to_strawberry(
-        input_data,
-        strawberry_type
-):
+def orm_to_strawberry(input_data, strawberry_type):
     """
     Function maps sqlalchemy model to strawberry class
 
@@ -129,17 +128,20 @@ def orm_to_strawberry(
     """
 
     if isinstance(input_data, list):
-        return [_orm_to_strawberry_step(get_dict_object(item), strawberry_type) for item in input_data]
+        return [
+            _orm_to_strawberry_step(get_dict_object(item), strawberry_type)
+            for item in input_data
+        ]
     return _orm_to_strawberry_step(get_dict_object(input_data), strawberry_type)
 
 
 def orm_mapper(
-        strawberry_type=None,
-        *,
-        inject_query: bool = False,
-        sqlalchemy_class=None,
-        inner_selection_name: str | None = None,
-        result_to_strawberry: bool = True
+    strawberry_type=None,
+    *,
+    inject_query: bool = False,
+    sqlalchemy_class=None,
+    inner_selection_name: str | None = None,
+    result_to_strawberry: bool = True
 ):
     """
     Function returns decorator for your Query strawberry.field()
@@ -157,11 +159,13 @@ def orm_mapper(
         def wrapper(*args, **kwargs):
             if inject_query:
                 if not sqlalchemy_class:
-                    raise Exception('Sqlalchemy class is required when using inject_query=True')
+                    raise Exception(
+                        "Sqlalchemy class is required when using inject_query=True"
+                    )
                 query = get_only_selected_fields(
                     sqlalchemy_class,
                     find_info_in_args(*args, **kwargs),
-                    inner_selection_name
+                    inner_selection_name,
                 )
                 result = func(query, *args, **kwargs)
             else:
@@ -176,9 +180,9 @@ def orm_mapper(
 
 
 __all__ = [
-    'orm_to_strawberry',
-    'get_only_selected_fields',
-    'strawberry_to_dict',
-    'orm_mapper',
-    'get_dict_object',
+    "orm_to_strawberry",
+    "get_only_selected_fields",
+    "strawberry_to_dict",
+    "orm_mapper",
+    "get_dict_object",
 ]
