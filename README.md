@@ -1,5 +1,7 @@
 # alchemy_graph
 
+![New Project](https://user-images.githubusercontent.com/68655454/236483334-a3c86f5c-f732-4465-bf78-692ddd4609b2.png)
+
 SQLAlchemy mapper to Strawberry types
 
 ## Functions:
