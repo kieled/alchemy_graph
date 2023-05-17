@@ -11,7 +11,7 @@
         <img src="https://github.com/kieled/alchemy_graph/actions/workflows/test.yml/badge.svg" /></a>
 </p>
 
-<p aling="center">SQLAlchemy mapper to Strawberry types</p>
+<p align="center">SQLAlchemy mapper to Strawberry types</p>
 
 
 ## :pencil2: Installation
