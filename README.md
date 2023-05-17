@@ -18,7 +18,7 @@
 You can install mapper using pip:
 
 ```bash
-pip install alchemy_graph
+pip install alchemy-graph
 ```
 
 ## Functions:
