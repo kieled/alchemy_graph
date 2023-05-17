@@ -3,11 +3,23 @@
 ![New Project](https://user-images.githubusercontent.com/68655454/236483334-a3c86f5c-f732-4465-bf78-692ddd4609b2.png)
 
 <p align="center">
- <a href="https://github.com/kieled/alchemy_graph/actions/workflows/test.yml" alt="GitFlow">
+    <a href="https://pypi.python.org/pypi/alchemy_graph" alt="PyPi Package Version">
+        <img src="https://img.shields.io/pypi/v/alchemy_graph.svg" /></a>
+    <a href="https://pypi.python.org/pypi/alchemy_graph" alt="Supported Python versions">
+        <img src="https://img.shields.io/pypi/pyversions/alchemy_graph.svg" /></a>
+    <a href="https://github.com/kieled/alchemy_graph/actions/workflows/test.yml" alt="GitFlow">
         <img src="https://github.com/kieled/alchemy_graph/actions/workflows/test.yml/badge.svg" /></a>
 </p>
 
-SQLAlchemy mapper to Strawberry types
+<p aling="center">SQLAlchemy mapper to Strawberry types</p>
+
+
+## :pencil2: Installation
+You can install mapper using pip:
+
+```bash
+pip install alchemy_graph
+```
 
 ## Functions:
 ### `get_only_selected_fields`
