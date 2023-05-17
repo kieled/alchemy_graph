@@ -14,11 +14,6 @@ packages = [
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
@@ -29,8 +24,8 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.11"
 sqlalchemy = "^2.0.12"
-fastapi = "^0.95.1"
-strawberry-graphql = { extras = ["fastapi"], version = "^0.176.3" }
+fastapi = "^0.95.2"
+strawberry-graphql = { extras = ["fastapi"], version = "^0.177.1" }
 
 
 [tool.poetry.group.dev.dependencies]
