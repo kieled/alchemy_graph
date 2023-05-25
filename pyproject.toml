@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "alchemy_graph"
-version = "0.1.1"
+version = "0.1.2"
 description = ""
 authors = ["Kiel Ed <kieledssh@gmail.com>"]
 readme = "README.md"
@@ -23,9 +23,9 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-sqlalchemy = "^2.0.12"
+sqlalchemy = "^2.0.15"
 fastapi = "^0.95.2"
-strawberry-graphql = { extras = ["fastapi"], version = "^0.177.1" }
+strawberry-graphql = { extras = ["fastapi"], version = "^0.178.0" }
 
 
 [tool.poetry.group.dev.dependencies]
@@ -73,3 +73,6 @@ ignore = [
     "B008",
     "C901",
 ]
+
+[tool.ruff.isort]
+known-third-party = ["alchemy_graph"]
