@@ -1,6 +1,6 @@
 <h2 align="center">:small_red_triangle: alchemy_graph :small_red_triangle:</h2>
 
-![New Project](https://user-images.githubusercontent.com/68655454/236483334-a3c86f5c-f732-4465-bf78-692ddd4609b2.png)
+![photo_2023-05-26_16-50-36](https://github.com/kieled/alchemy_graph/assets/68655454/ac2e2804-4cf3-4eea-942a-07fb4c5f0db2)
 
 <p align="center">
     <a href="https://pypi.python.org/pypi/alchemy_graph" alt="PyPi Package Version">
