@@ -4,7 +4,7 @@ import pytest
 import strawberry
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, insert
+from sqlalchemy import create_engine, insert, select
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column
 from strawberry.fastapi import GraphQLRouter
@@ -21,9 +21,6 @@ async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 class Test(Base):
     __tablename__ = "tests"
-
-    def __init__(self, value: str):
-        self.value = value
 
     id: Mapped[int] = mapped_column(primary_key=True)
     value: Mapped[str]
@@ -53,13 +50,10 @@ class Mutation:
     @strawberry.mutation
     async def create_test(self, value: str) -> TestType:
         async with async_session() as s:
-            db_new_id = (
-                (await s.execute(insert(Test).values(value=value).returning(Test.id)))
-                .scalars()
-                .first()
-            )
+            await s.execute(insert(Test).values(value=value))
             await s.commit()
-        return orm_to_strawberry(Test(id=db_new_id, value=value), TestType)
+            instance = (await s.scalars(select(Test))).first()
+        return orm_to_strawberry(instance, TestType)
 
 
 strawberry_config = StrawberryConfig(auto_camel_case=True)
