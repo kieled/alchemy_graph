@@ -22,6 +22,9 @@ async_session = async_sessionmaker(engine, expire_on_commit=False)
 class Test(Base):
     __tablename__ = "tests"
 
+    def __init__(self, value: str):
+        self.value = value
+
     id: Mapped[int] = mapped_column(primary_key=True)
     value: Mapped[str]
 
@@ -50,13 +53,13 @@ class Mutation:
     @strawberry.mutation
     async def create_test(self, value: str) -> TestType:
         async with async_session() as s:
-            db_instance = (
-                (await s.execute(insert(Test).values(value=value).returning(Test)))
+            db_new_id = (
+                (await s.execute(insert(Test).values(value=value).returning(Test.id)))
                 .scalars()
                 .first()
             )
             await s.commit()
-        return orm_to_strawberry(db_instance, TestType)
+        return orm_to_strawberry(Test(id=db_new_id, value=value), TestType)
 
 
 strawberry_config = StrawberryConfig(auto_camel_case=True)
