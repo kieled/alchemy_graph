@@ -1,7 +1,7 @@
 import enum
 from datetime import datetime
-from functools import wraps
 from types import GenericAlias, UnionType
+from typing import Sequence
 
 import strawberry
 from sqlalchemy import Select, select
@@ -10,13 +10,8 @@ from strawberry.type import StrawberryList, StrawberryOptional
 from strawberry.types import Info
 from strawberry.types.nodes import SelectedField
 
-from .utils import (
-    convert_camel_case,
-    find_info_in_args,
-    flatten,
-    get_dict_object,
-    strawberry_to_dict,
-)
+from .types import AL, T
+from .utils import convert_camel_case, flatten, get_dict_object, strawberry_to_dict
 
 
 def get_relation_options(relation: dict, prev_sql: Select | None = None):
@@ -40,7 +35,7 @@ def get_relation_options(relation: dict, prev_sql: Select | None = None):
 
 
 def get_only_selected_fields(
-    sqlalchemy_class, info: Info, inner_selection_name: str | None = None
+    sqlalchemy_class: type[AL], info: Info, inner_selection_name: str | None = None
 ) -> Select:
     """Given a SQLAlchemy model class and a Strawberry `Info` object representing a selection set,
     returns a SQLAlchemy `Select` object that loads only the fields and relations specified in the selection set.
@@ -52,7 +47,7 @@ def get_only_selected_fields(
     :return: A SQLAlchemy `Select` object that loads only the specified fields and relations.
     """
 
-    def process_items(items: list[SelectedField], db_class):
+    def process_items(items: list[SelectedField], db_class: AL):
         current_fields, relations = [], []
         for item in items:
             if item.name == "__typename":
@@ -90,7 +85,7 @@ def get_only_selected_fields(
     return select(sqlalchemy_class).options(*query_options)
 
 
-def _orm_to_strawberry_step(item: dict, current_strawberry_type):
+def _orm_to_strawberry_step(item: dict, current_strawberry_type: T):
     annots = current_strawberry_type.__annotations__
     temp = {}
     for k, v in item.items():
@@ -118,7 +113,7 @@ def _orm_to_strawberry_step(item: dict, current_strawberry_type):
     return current_strawberry_type(**temp)
 
 
-def orm_to_strawberry(input_data, strawberry_type):
+def orm_to_strawberry(input_data: Sequence[AL] | AL, strawberry_type: T):
     """
     Function maps sqlalchemy model to strawberry class
 
@@ -135,54 +130,9 @@ def orm_to_strawberry(input_data, strawberry_type):
     return _orm_to_strawberry_step(get_dict_object(input_data), strawberry_type)
 
 
-def orm_mapper(
-    strawberry_type=None,
-    *,
-    inject_query: bool = False,
-    sqlalchemy_class=None,
-    inner_selection_name: str | None = None,
-    result_to_strawberry: bool = True
-):
-    """
-    Function returns decorator for your Query strawberry.field()
-
-    :param strawberry_type: Strawberry type that should be return. Required if `result_to_strawberry=True`
-    :param inject_query: Inject into current function SQLAlchemy select expression based on the GraphQL query
-    :param sqlalchemy_class: If inject_query is true is required. Create select expression for your sqlalchemy Base model
-    :param inner_selection_name: If you have GraphQL query like `{"items": SomeType[], "count": 10} and you only need items - type items in this param`
-    :param result_to_strawberry: Default `True`. If True map result from sqlalchemy to strawberry class
-    :return: decorator
-    """
-
-    def decorator(func: callable) -> callable:
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            if inject_query:
-                if not sqlalchemy_class:
-                    raise Exception(
-                        "Sqlalchemy class is required when using inject_query=True"
-                    )
-                query = get_only_selected_fields(
-                    sqlalchemy_class,
-                    find_info_in_args(*args, **kwargs),
-                    inner_selection_name,
-                )
-                result = func(query, *args, **kwargs)
-            else:
-                result = func(*args, **kwargs)
-            if result_to_strawberry:
-                return orm_to_strawberry(result, strawberry_type)
-            return result
-
-        return wrapper
-
-    return decorator
-
-
 __all__ = [
     "orm_to_strawberry",
     "get_only_selected_fields",
     "strawberry_to_dict",
-    "orm_mapper",
     "get_dict_object",
 ]

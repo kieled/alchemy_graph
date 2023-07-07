@@ -1,25 +1,19 @@
 import copy
 import re
+from typing import Sequence
+
 from sqlalchemy.orm import class_mapper
-from strawberry.types import Info
+
+from alchemy_graph.types import AL, F, T
 
 
 def convert_camel_case(name: str) -> str:
-    pattern = re.compile(r'(?<!^)(?=[A-Z])')
-    name = pattern.sub('_', name).lower()
+    pattern = re.compile(r"(?<!^)(?=[A-Z])")
+    name = pattern.sub("_", name).lower()
     return name
 
 
-def find_info_in_args(*args, **kwargs) -> Info:
-    if 'info' in kwargs:
-        return kwargs.get('info')
-    for i in args:
-        if isinstance(i, Info):
-            return i
-    raise Exception('orm_mapper should used only with Strawberry fields')
-
-
-def flatten(items):
+def flatten(items: list[F]):
     if not items:
         return items
     if isinstance(items[0], list):
@@ -27,16 +21,16 @@ def flatten(items):
     return items[:1] + flatten(items[1:])
 
 
-def _to_dict(obj):
+def _to_dict(obj: T) -> dict | list[dict]:
     if isinstance(obj, list) or isinstance(obj, tuple):
         return [_to_dict(i) for i in obj]
-    if not hasattr(obj, '__dict__'):
+    if not hasattr(obj, "__dict__"):
         return obj
     temp = obj.__dict__
     for key, value in temp.items():
-        if hasattr(value, '_enum_definition') or isinstance(value, bytes):
+        if hasattr(value, "_enum_definition") or isinstance(value, bytes):
             continue
-        elif hasattr(value, '__dict__'):
+        elif hasattr(value, "__dict__"):
             temp[key] = _to_dict(value)
         elif isinstance(value, list):
             temp[key] = [_to_dict(i) for i in value]
@@ -44,9 +38,9 @@ def _to_dict(obj):
 
 
 def strawberry_to_dict(
-        strawberry_model,
-        exclude_none: bool = False,
-        exclude: set | None = None,
+    strawberry_model: T,
+    exclude_none: bool = False,
+    exclude: set | None = None,
 ):
     """
     Converts a Strawberry type to a dictionary.
@@ -57,9 +51,7 @@ def strawberry_to_dict(
 
     :return: A dictionary with the values of the Strawberry type.
     """
-    dict_obj: dict = _to_dict(
-        copy.deepcopy(strawberry_model)
-    )
+    dict_obj: dict = _to_dict(copy.deepcopy(strawberry_model))
     result_dict = {**dict_obj}
     for k, v in dict_obj.items():
         if exclude:
@@ -70,7 +62,7 @@ def strawberry_to_dict(
     return result_dict
 
 
-def get_dict_object(model) -> dict | list[dict]:
+def get_dict_object(model: Sequence[AL] | AL) -> dict | list[dict]:
     """
     Map sqlalchemy model or list of them to dict
 
@@ -83,10 +75,7 @@ def get_dict_object(model) -> dict | list[dict]:
     if isinstance(model, dict):
         for k, v in model.items():
             if isinstance(v, list):
-                return {
-                    **model,
-                    k: [get_dict_object(i) for i in v]
-                }
+                return {**model, k: [get_dict_object(i) for i in v]}
         return model
     mapper = class_mapper(model.__class__)
     out = {
